@@ -17,31 +17,50 @@ public class Client implements Runnable {
     /**
      * @param args the command line arguments
      */
-    private Socket socket = null;
-    private BufferedReader inp = null;
-    private DataInputStream sinp = null;
-    private DataOutputStream sout = null;
-    private boolean closed = false;
+    private static Socket socket = null;
+    private static BufferedReader inp = null;
+    private static DataInputStream sinp = null;
+    private static DataOutputStream sout = null;
+    public static boolean closed = false;
 
-    Client(String addr, int port) {
 
+    @Override
+    public void run() {
+        String response;
         try {
-            socket = new Socket(addr, port);
+            while (true) {
+                response = sinp.readUTF();
+                System.out.println(response);
+                if (response.contains("Bye") == true) {
+                    break;
+                }
+            }
+            // System.out.println("lol");
+            closed = true;
+           
+        } catch (IOException i) {
+            System.out.println(i);
+        }
+
+    }
+
+    public static void main(String[] args) {
+         try {
+            socket = new Socket("127.0.0.1", 5000);
             inp = new BufferedReader(new InputStreamReader(System.in));
             sinp = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             sout = new DataOutputStream(socket.getOutputStream());
 
-            Thread t1 = new Thread(this);
-            t1.start();
+            Thread t = new Thread(new Client());
+            t.start();
 
-            String ln = "";
+            String ln;
 
             while (!closed) {
 
                 ln = inp.readLine();
                 sout.writeUTF(ln);
             }
-
             socket.close();
             inp.close();
             sinp.close();
@@ -51,26 +70,6 @@ public class Client implements Runnable {
             System.out.println(i);
         }
 
-    }
-
-    @Override
-    public void run() {
-        String response = "";
-        try {
-            while (!response.equals("bye")) {
-                response = sinp.readUTF();
-                System.out.println(response);
-            }
-            closed = true;
-        } catch (IOException i) {
-            System.out.println(i);
-        }
-
-    }
-
-    public static void main(String[] args) {
-        Client c = new Client("127.0.0.1", 5000);
-        // TODO code application logic here
     }
 
 }
