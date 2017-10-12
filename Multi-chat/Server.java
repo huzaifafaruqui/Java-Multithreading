@@ -28,17 +28,27 @@ public class Server {
     /**
      * @param args the command line arguments
      */
-    private ServerSocket servsocket = null;
-    private Socket clntsocket = null;
+    private static ServerSocket servsocket = null;
+    private static Socket clntsocket = null;
     // private int maxClients = 8;
     static ClientHandler[] threads = new ClientHandler[10];
-    private DataOutputStream sout = null;
+    private static DataOutputStream sout = null;
 
     Server(int port) {
         try {
             servsocket = new ServerSocket(port);
-            System.out.println("Server started..");
-            System.out.println("Waiting for connection..");
+        } catch (IOException i) {
+            System.out.println(i);
+        }
+
+    }
+
+    public static void main(String[] args) {
+        // TODO code application logic here
+        Server serv = new Server(5000);
+        System.out.println("Server started..");
+        System.out.println("Waiting for connection..");
+        try {
             while (true) {
                 clntsocket = servsocket.accept();
                 //sout = new DataOutputStream(clntsocket.getOutputStream());
@@ -48,19 +58,14 @@ public class Server {
                     if (threads[i] == null) {
                         (threads[i] = new ClientHandler(clntsocket, threads)).start();
                         break;
+
                     }
                 }
 
             }
-
-        } catch (IOException i) {
-            System.out.println(i);
+        } catch (IOException e) {
         }
-    }
 
-    public static void main(String[] args) {
-        // TODO code application logic here
-        Server serv = new Server(5000);
     }
 
 }
@@ -112,7 +117,7 @@ class ClientHandler extends Thread {
                     threads[i] = null;
                 }
             }
-            
+
             sout.writeUTF("Bye");
 
             sout.close();
