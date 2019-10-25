@@ -24,8 +24,8 @@ class PC {
         notify();
     }
 
-    public synchronized void consume() throws InterruptedException {
-
+    public void consume() throws InterruptedException {
+        synchronized(this){
         if (list.isEmpty()) {
             wait();
         }
@@ -35,6 +35,7 @@ class PC {
 
         notify();
     }
+  }     
 }
 
 public class ProducerConsumer {
